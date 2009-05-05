@@ -6,3 +6,7 @@ inc
 pm_to_blib
 MANIFEST
 Makefile.old
+App-YesssSpendings-*
+Makefile.PL
+Build
+_build
