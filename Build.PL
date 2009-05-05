@@ -4,18 +4,20 @@ use Module::Build;
 use 5.010;
 
 my $builder = Module::Build->new(
-    module_name       => 'App-YesssGuthaben',
+    module_name       => 'App-YesssSpendings',
     license           => 'perl',
     dist_author       => 'Thomas Klausner',
-    dist_version_from => 'lib/App/YesssGuthaben.pm',
-    build_requires    => {
-        'Test::More'       => 0,
+    dist_version_from => 'lib/App/YesssSpendings.pm',
+    build_requires    => { 'Test::More' => 0, },
+    requires          => {
+        'perl'               => '5.010',
+        'WWW::Mechanize'     => 0,
+        'DateTime'           => 0,
+        'HTML::TableExtract' => 0,
+        'Moose'              => 0,
     },
-    requires => {
-        'perl'             => '5.010',
-    },
-    add_to_cleanup     => ['App-YesssGuthaben-*'],
-    create_makefile_pl => 'passthrough',
+    add_to_cleanup       => ['App-YesssSpendings-*'],
+    create_makefile_pl   => 'passthrough',
     recursive_test_files => 1,
 );
 

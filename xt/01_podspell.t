@@ -7,4 +7,4 @@ all_pod_files_spelling_ok('lib');
 __DATA__
 Thomas Klausner
 domm {at} cpan.org
-App::YesssGuthaben
+App::YesssSpendings

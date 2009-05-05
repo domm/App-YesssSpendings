@@ -1,4 +1,4 @@
-package App::YesssGuthaben;
+package App::YesssSpendings;
 
 use strict;
 use warnings;
@@ -67,23 +67,21 @@ __END__
 
 =head1 NAME
 
-App::YesssGuthaben - Inform on this months yesss spendings
+App::YesssSpendings - Inform on this months yesss spendings
 
 =head1 SYNOPSIS
 
-  use App::YesssGuthaben;
+  use App::YesssSpendings;
 
 =head1 DESCRIPTION
 
-App::YesssGuthaben is a quick hack to screenscape the yesss.at 
+App::YesssSpendings is a quick hack to screenscape the yesss.at 
 (Austrian prepaid mobile provider) to get the sum of this months 
 spendings (so I can tell my son when to stop texting!!!)
 
 =head1 AUTHOR
 
 Thomas Klausner E<lt>domm {at} cpan.orgE<gt>
-
-=head1 SEE ALSO
 
 =head1 LICENSE
 
