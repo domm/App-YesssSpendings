@@ -15,6 +15,7 @@ my $builder = Module::Build->new(
         'DateTime'           => 0,
         'HTML::TableExtract' => 0,
         'Moose'              => 0,
+        'MooseX::Getopt'     => 0,
     },
     add_to_cleanup       => ['App-YesssSpendings-*'],
     create_makefile_pl   => 'passthrough',
