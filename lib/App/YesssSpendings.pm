@@ -3,7 +3,7 @@ package App::YesssSpendings;
 use strict;
 use warnings;
 use 5.010;
-use version; our $VERSION = version->new('0.01');
+use version; our $VERSION = version->new('0.02');
 use WWW::Mechanize;
 use Carp;
 use DateTime;

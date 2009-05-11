@@ -1,4 +1,8 @@
 Revision history for Perl extension App::YesssGuthaben
 
+0.02	2009-05-11 08:21:27
+    - added info on SOLL (Thomas Klausner)
+
+
 0.01    Tue May  5 15:28:03 2009
         - original version
