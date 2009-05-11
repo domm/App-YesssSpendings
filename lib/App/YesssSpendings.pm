@@ -19,6 +19,7 @@ has mech   => (is=>'rw',isa=>'WWW::Mechanize',default=>sub { WWW::Mechanize->new
 has yesss_login  => (is=>'ro',isa=>'Str',default=>'http://www.yesss.at/kontomanager.php');
 has yesss_bookings=> (is=>'ro',isa=>'Str',default=>'https://www.yesss.at/kontomanager/wertkarte_gespraeche.php?page=');
 has verbose => (is=>'rw',isa=>'Bool',default=>0);
+has budget => (is=>'ro',isa=>'Str');
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
@@ -58,7 +59,25 @@ sub get_this_months_bookings {
             $sum+=$row->[3];
         }
     }  
-    say $sum;
+    
+    # compare with budget
+    if (my $budget = $self->budget) {
+        my $now = DateTime->now->truncate('to'=>'day');
+        my $days = DateTime->last_day_of_month(year=>$now->year,month=>$now->month)->day || 30;
+        my $soll = sprintf("%5.3f",($budget/$days) * $now->day);
+        say "$sum / $soll";
+        my $rest = $soll - $sum;
+        if ($rest > 0) {
+            my $sms_left = int($rest / 0.068);
+            say "Noch $sms_left SMS möglich";
+        }
+        else {
+            say "STOP! Du bis drüber!";
+        }
+    }
+    else {
+        say $sum;
+    }
 }
 
 1;
