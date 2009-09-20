@@ -75,7 +75,9 @@ sub get_this_months_bookings {
         my $soll = sprintf("%5.3f",($budget/$days) * $now->day);
         say "Ausgegeben: $sum Euro";
         say "Budget bis heute: $soll Euro";
+        say "Budget dieses Monat: $budget";
         my $rest = $soll - $sum;
+        say "Rest: $rest";
         if ($rest > 0) {
             my $sms_left = int($rest / 0.04);
             say "Noch $sms_left SMS/Telefonate möglich";
