@@ -8,6 +8,7 @@ use WWW::Mechanize;
 use Carp;
 use DateTime;
 use HTML::TableExtract;
+use DateTime::Format::Strptime;
 
 use Moose;
 with qw(
@@ -22,6 +23,12 @@ has yesss_bookings=> (is=>'rw',isa=>'Str',default=>'https://www.yesss.at/kontoma
 has verbose => (is=>'rw',isa=>'Bool',default=>0);
 has budget => (is=>'ro',isa=>'Str');
 has session_id=>(is=>'rw',isa=>'Str');
+has df_parser=>(is=>'ro',isa=>'DateTime::Format::Strptime',default=>sub {
+    return DateTime::Format::Strptime->new(
+        pattern  => '%m.%d.%Y',
+        on_error => 'croak',
+    );
+});
 
 no Moose;
 __PACKAGE__->meta->make_immutable;
@@ -50,7 +57,7 @@ sub login {
 sub get_this_months_bookings {
     my $self = shift;
 
-    my $last_day_of_prev_month = DateTime->now->truncate('to'=>'month')->subtract('days'=>1)->dmy('.');
+    my $last_day_of_prev_month = DateTime->now->truncate('to'=>'month')->subtract('days'=>1);
 
     my $sum;
     my %types;
@@ -60,9 +67,10 @@ sub get_this_months_bookings {
         $table_extract->parse($self->mech->content);
         foreach my $row ($table_extract->rows) {
             next if $row->[0] =~ /datum/i;
-            my $date = substr($row->[0],0,10);
-            last PAGE if $date eq $last_day_of_prev_month;
-            say join(';',$date,$row->[4],$row->[5]) if $self->verbose;
+            my $rawdate = substr($row->[0],0,10);
+            my $date = $self->df_parser->parse_datetime($rawdate);
+            last PAGE if $date <= $last_day_of_prev_month;
+            say join(';',$date->ymd,$row->[4],$row->[5]) if $self->verbose;
             $sum+=$row->[4];
             $types{$row->[5]}++;
         }
