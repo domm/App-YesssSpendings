@@ -25,7 +25,7 @@ has budget => (is=>'ro',isa=>'Str');
 has session_id=>(is=>'rw',isa=>'Str');
 has df_parser=>(is=>'ro',isa=>'DateTime::Format::Strptime',default=>sub {
     return DateTime::Format::Strptime->new(
-        pattern  => '%m.%d.%Y',
+        pattern  => '%d.%m.%Y',
         on_error => 'croak',
     );
 });
