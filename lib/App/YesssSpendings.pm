@@ -61,7 +61,7 @@ sub get_this_months_bookings {
 
     my $sum;
     my %types;
-    PAGE: foreach my $page (1 .. 10) {
+    PAGE: foreach my $page (1 .. 20) {
         my $table_extract = HTML::TableExtract->new();#headers => ['Datum/Uhrzeit:',qw(Nummer: Dauer: Kosten: Art:)]);
         $self->mech->get($self->yesss_bookings . "page=$page");
         $table_extract->parse($self->mech->content);
