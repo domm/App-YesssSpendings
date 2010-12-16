@@ -16,6 +16,8 @@ my $builder = Module::Build->new(
         'HTML::TableExtract' => 0,
         'Moose'              => 0,
         'MooseX::Getopt'     => 0,
+        'Email::Sender'      => 0,
+        'Email::Simple'      => 0,
     },
     add_to_cleanup       => ['App-YesssSpendings-*'],
     create_makefile_pl   => 'passthrough',

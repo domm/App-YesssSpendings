@@ -10,6 +10,11 @@ use DateTime;
 use HTML::TableExtract;
 use DateTime::Format::Strptime;
 use Data::Dumper;
+use Email::Sender::Simple qw(sendmail);
+use Email::Simple;
+use Email::Simple::Creator;
+use Encode;
+use utf8;
 
 use Moose;
 with qw(
@@ -33,6 +38,7 @@ sub _build_cost_per_call {
         when ('vertrag') { return 0.04 }
     }
 }
+has recipient=>(is=>'ro',isa=>'Str',required=>1);
 
 has verbose => (is=>'rw',isa=>'Bool',default=>0);
 has budget => (is=>'ro',isa=>'Str');
@@ -51,7 +57,20 @@ sub run {
     my $self = shift;
 
     $self->login;
-    $self->get_this_months_bookings; 
+    my ($subject,$body) = $self->get_this_months_bookings;
+
+    my $email = Email::Simple->create(
+        header => [
+            To=>$self->recipient,
+            From=>'YesssSpendings '.$self->msisdn.' <domm@plix.at>',
+            Subject=>encode('MIME-Q',$subject),
+            'Content-Type'=>'text/plain;charset=utf-8',
+            'charset'=>'UTF-8',
+            'Content-transfer-encoding'=>'quoted-printable',
+        ],
+        body=>encode_utf8($body),
+    );
+    sendmail($email);
 }
 
 sub login {
@@ -76,6 +95,7 @@ sub get_this_months_bookings {
     my $sum=0;
     my $cost_per_call = $self->cost_per_call;
     my %types;
+    my ($subject,@body);
     PAGE: foreach my $page (1 .. 20) {
         my $table_extract = HTML::TableExtract->new();#headers => ['Datum/Uhrzeit:',qw(Nummer: Dauer: Kosten: Art:)]);
         $self->mech->get($self->yesss_bookings . "page=$page");
@@ -97,23 +117,25 @@ sub get_this_months_bookings {
         my $now = DateTime->now->truncate('to'=>'day');
         my $days = DateTime->last_day_of_month(year=>$now->year,month=>$now->month)->day || 30;
         my $soll = sprintf("%5.3f",($budget/$days) * $now->day);
-        say "Ausgegeben: $sum Euro";
-        say "Budget bis heute: $soll Euro";
-        say "Budget dieses Monat: $budget";
+        push(@body,"Ausgegeben: $sum Euro");
+        push(@body,"Budget bis heute: $soll Euro");
+        push(@body,"Budget dieses Monat: $budget");
         my $rest = $soll - $sum;
-        say "Rest: $rest";
+        push(@body,"Rest: $rest");
         if ($rest > 0) {
             my $sms_left = int($rest / $cost_per_call);
-            say "Noch $sms_left SMS/Telefonate möglich";
+            $subject = "Noch $sms_left SMS/Telefonate möglich";
         }
         else {
-            say "STOP! Du bis drüber!";
+            $subject = "STOP! Du bis drüber!";
         }
-        say join(', ',map { "$_: ".$types{$_} } keys %types);
+        push(@body,$subject);
+        push(@body, join(', ',map { "$_: ".$types{$_} } keys %types));
     }
     else {
-        say $sum;
+        push(@body, $sum);
     }
+    return ($subject,join("\n",@body));
 }
 
 1;
