@@ -121,14 +121,18 @@ sub get_this_months_bookings {
         push(@body,"Budget bis heute: $soll Euro");
         push(@body,"Budget dieses Monat: $budget");
         my $rest = $soll - $sum;
-        push(@body,"Rest: $rest");
+        my $total_rest = $budget - $sum;
+        push(@body,"Rest: $total_rest");
         if ($rest > 0) {
             my $sms_left = int($rest / $cost_per_call);
             $subject = "Noch $sms_left SMS/Telefonate möglich";
         }
         else {
+            my $sms_left = int($total_rest / $cost_per_call);
             $subject = "STOP! Du bis drüber!";
+            push(@body,"Noch $sms_left SMS/Telefonate in diesem Monat möglich");
         }
+        $subject .= ' ('.$sum.'/'.$soll.')';
         push(@body,$subject);
         push(@body, join(', ',map { "$_: ".$types{$_} } keys %types));
     }
