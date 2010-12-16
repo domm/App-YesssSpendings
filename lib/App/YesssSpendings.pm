@@ -9,6 +9,7 @@ use Carp;
 use DateTime;
 use HTML::TableExtract;
 use DateTime::Format::Strptime;
+use Data::Dumper;
 
 use Moose;
 with qw(
@@ -18,8 +19,21 @@ has msisdn => (is=>'ro',isa=>'Str',required=>1);
 has passwd => (is=>'ro',isa=>'Str',required=>1);
 has mech   => (is=>'rw',isa=>'WWW::Mechanize',default=>sub { WWW::Mechanize->new });
 has yesss_login  => (is=>'ro',isa=>'Str',default=>'http://www.yesss.at/kontomanager.php');
-#has yesss_bookings=> (is=>'ro',isa=>'Str',default=>'https://www.yesss.at/kontomanager/wertkarte_gespraeche.php?page=');
-has yesss_bookings=> (is=>'rw',isa=>'Str',default=>'https://www.yesss.at/kontomanager/vertrag_gespraeche.php?');
+has type => (is=>'ro',isa=>'Str',required=>1); # wertkarte OR vertrag
+has yesss_bookings=> (is=>'rw',isa=>'Str',lazy_build=>1);
+sub _build_yesss_bookings {
+    my $self = shift;
+    return 'https://www.yesss.at/kontomanager/'.$self->type.'_gespraeche.php?'
+}
+has cost_per_call => (is=>'ro',lazy_build=>1);
+sub _build_cost_per_call {
+    my $self = shift;
+    given ($self->type) {
+        when ('wertkarte') { return 0.068 }
+        when ('vertrag') { return 0.04 }
+    }
+}
+
 has verbose => (is=>'rw',isa=>'Bool',default=>0);
 has budget => (is=>'ro',isa=>'Str');
 has session_id=>(is=>'rw',isa=>'Str');
@@ -59,11 +73,13 @@ sub get_this_months_bookings {
 
     my $last_day_of_prev_month = DateTime->now->truncate('to'=>'month')->subtract('days'=>1);
 
-    my $sum;
+    my $sum=0;
+    my $cost_per_call = $self->cost_per_call;
     my %types;
     PAGE: foreach my $page (1 .. 20) {
         my $table_extract = HTML::TableExtract->new();#headers => ['Datum/Uhrzeit:',qw(Nummer: Dauer: Kosten: Art:)]);
         $self->mech->get($self->yesss_bookings . "page=$page");
+        
         $table_extract->parse($self->mech->content);
         foreach my $row ($table_extract->rows) {
             next if $row->[0] =~ /datum/i;
@@ -87,7 +103,7 @@ sub get_this_months_bookings {
         my $rest = $soll - $sum;
         say "Rest: $rest";
         if ($rest > 0) {
-            my $sms_left = int($rest / 0.04);
+            my $sms_left = int($rest / $cost_per_call);
             say "Noch $sms_left SMS/Telefonate möglich";
         }
         else {
