@@ -22,7 +22,7 @@ with qw(
 
 has msisdn => (is=>'ro',isa=>'Str',required=>1);
 has passwd => (is=>'ro',isa=>'Str',required=>1);
-has mech   => (is=>'rw',isa=>'WWW::Mechanize',default=>sub { WWW::Mechanize->new });
+has mech   => (is=>'rw',isa=>'WWW::Mechanize',default=>sub { WWW::Mechanize->new( timeout=>300 ) });
 has yesss_login  => (is=>'ro',isa=>'Str',default=>'http://www.yesss.at/kontomanager.php');
 has type => (is=>'ro',isa=>'Str',required=>1); # wertkarte OR vertrag
 has yesss_bookings=> (is=>'rw',isa=>'Str',lazy_build=>1);
